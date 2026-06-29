@@ -32,7 +32,7 @@ export class WalletApiService {
     );
   }
 
-  deposit(walletId: number, payload: { amount: number }): Observable<void> {
+  deposit(walletId: number, payload: { amount: number; paymentMethod: string }): Observable<void> {
     return this.http.post<void>(`${this.BASE}/${walletId}/deposit`, payload);
   }
 

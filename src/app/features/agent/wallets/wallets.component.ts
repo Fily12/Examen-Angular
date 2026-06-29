@@ -73,6 +73,11 @@ import { phoneValidator }   from '../../../core/validators/phone.validators';
               <form [formGroup]="depositForm" (ngSubmit)="deposit()">
                 <h4>Dépôt</h4>
                 <input type="number" formControlName="amount" placeholder="Montant" min="1" />
+                <select formControlName="paymentMethod">
+                  <option value="WALLET_TARGET">Wallet</option>
+                  <option value="BANK_ACCOUNT">Virement bancaire</option>
+                  <option value="CREDIT_CARD">Carte bancaire</option>
+                </select>
                 <button type="submit" [disabled]="depositForm.invalid" class="btn-success">Déposer</button>
               </form>
               <form [formGroup]="withdrawForm" (ngSubmit)="withdraw()">
@@ -179,7 +184,10 @@ export class WalletsComponent implements OnInit {
   foundWallet: Wallet | null = null;
   selectedWallet: Wallet | null = null;
 
-  depositForm  = this.fb.group({ amount: [null, [Validators.required, Validators.min(1)]] });
+  depositForm  = this.fb.group({
+    amount:        [null, [Validators.required, Validators.min(1)]],
+    paymentMethod: ['WALLET_TARGET', Validators.required]
+  });
   withdrawForm = this.fb.group({ amount: [null, [Validators.required, Validators.min(1)]] });
   createForm   = this.fb.group({
     code:           ['', Validators.required],
@@ -229,8 +237,8 @@ export class WalletsComponent implements OnInit {
 
   deposit(): void {
     if (!this.selectedWallet) return;
-    const { amount } = this.depositForm.value;
-    this.walletApi.deposit(this.selectedWallet.id, { amount: amount! }).subscribe({
+    const { amount, paymentMethod } = this.depositForm.value;
+    this.walletApi.deposit(this.selectedWallet.id, { amount: amount!, paymentMethod: paymentMethod! }).subscribe({
       next: () => { this.toast.success('Dépôt effectué'); this.depositForm.reset(); this.loadWallets(); },
       error: () => {}
     });
